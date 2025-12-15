@@ -1,0 +1,20 @@
+# Voice Authentication API
+# Production Requirements
+
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+pydantic>=2.5.0
+
+# Audio Processing
+numpy>=1.24.0
+soundfile>=0.12.0
+librosa>=0.10.0
+
+# ML
+torch>=2.0.0
+torchaudio>=2.0.0
+speechbrain>=0.5.15
+
+# Security
+python-dotenv>=1.0.0

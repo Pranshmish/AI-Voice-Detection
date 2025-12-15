@@ -1,0 +1,246 @@
+{
+  "testuser": {
+    "user_id": "testuser",
+    "enrolled_at": "2025-12-14T12:36:52.054463",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\testuser.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "tests\\live_voice.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "tests\\live_voice.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "tests\\live_voice.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  },
+  "authuser": {
+    "user_id": "authuser",
+    "enrolled_at": "2025-12-14T23:36:06.136516",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\authuser.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "enroll_sample_1.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "enroll_sample_2.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "enroll_sample_3.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  },
+  "user": {
+    "user_id": "user",
+    "enrolled_at": "2025-12-15T22:21:47.277623",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\user.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "calibration_data\\live_1.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "calibration_data\\live_2.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "calibration_data\\live_3.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  },
+  "auth_user": {
+    "user_id": "auth_user",
+    "enrolled_at": "2025-12-14T23:56:28.899794",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\auth_user.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "samples\\recording_20251214_011736.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "samples\\recording_20251214_011749.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "samples\\recording_20251214_011802.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  },
+  "fresh_user": {
+    "user_id": "fresh_user",
+    "enrolled_at": "2025-12-15T00:06:09.150956",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\fresh_user.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "fresh_0.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "fresh_1.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "fresh_2.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  },
+  "me": {
+    "user_id": "me",
+    "enrolled_at": "2025-12-15T00:07:35.169120",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\me.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 5,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "enroll_0.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "enroll_1.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "enroll_2.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 4,
+          "path": "enroll_3.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 5,
+          "path": "enroll_4.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  },
+  "Pranshul": {
+    "user_id": "Pranshul",
+    "enrolled_at": "2025-12-15T22:39:08.973612",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\Pranshul.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "_e0.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "_e1.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "_e2.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  },
+  "owner": {
+    "user_id": "owner",
+    "enrolled_at": "2025-12-15T23:23:32.311401",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\owner.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "_e0.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "_e1.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "_e2.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "roc_auc": 1.0,
+  "average_precision": 1.0,
+  "eer": 0.0,
+  "n_train": 69,
+  "n_val": 18,
+  "n_features": 45,
+  "timestamp": "2025-12-14T19:26:08.233058"
+}
