@@ -19,3 +19,6 @@ speechbrain>=0.5.15
 
 # Security
 python-dotenv>=1.0.0
+
+# Speech-to-Text (Challenge System)
+vosk>=0.3.45

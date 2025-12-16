@@ -216,7 +216,7 @@
   },
   "owner": {
     "user_id": "owner",
-    "enrolled_at": "2025-12-15T23:23:32.311401",
+    "enrolled_at": "2025-12-16T22:58:44.239820",
     "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\owner.npy",
     "embedding_dim": 192,
     "metadata": {
@@ -224,19 +224,19 @@
       "sample_details": [
         {
           "sample": 1,
-          "path": "_e0.wav",
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpjt6dl26m.wav",
           "status": "success",
           "embedding_dim": 192
         },
         {
           "sample": 2,
-          "path": "_e1.wav",
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpt4cc6jxu.wav",
           "status": "success",
           "embedding_dim": 192
         },
         {
           "sample": 3,
-          "path": "_e2.wav",
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmprhko28dt.wav",
           "status": "success",
           "embedding_dim": 192
         }

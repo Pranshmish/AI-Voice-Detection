@@ -60,9 +60,13 @@ app.add_middleware(
 # Include routes
 from app.api.routes import router as auth_router
 from app.api.websocket import router as ws_router
+from app.api.challenge_routes import router as challenge_router
+from app.api.integration_guide import router as guide_router
 
 app.include_router(auth_router)
 app.include_router(ws_router)
+app.include_router(challenge_router)
+app.include_router(guide_router)
 
 
 @app.get("/")

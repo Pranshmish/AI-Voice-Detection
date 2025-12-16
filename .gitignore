@@ -1,37 +1,47 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
 
-# Audio
+# Virtual environments
+venv/
+.env
+.venv/
+
+# Audio files
 *.wav
 *.mp3
+*.ogg
 *.flac
-*.npy
+
+# Models (downloaded at runtime)
+models/vosk-model*/
+models/speechbrain*/
+models/*.zip
+
+# Voiceprints (user data)
+voiceprints/
 
 # Logs
 logs/
 *.log
 
-# App Data
-voiceprints/*.npy
-voiceprints/*.json
-voiceprints/*.db
-!voiceprints/.keep
-models/
-
-# Editor
+# IDE
 .vscode/
 .idea/
+*.swp
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Test files
+test_*.py
+_*.wav
+
+# Samples
+samples/

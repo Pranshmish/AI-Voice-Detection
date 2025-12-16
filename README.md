@@ -1,35 +1,65 @@
-# Voice Auth API - Hackathon Edition 🚀
+# 🎤 Voice Authentication API
 
-**Open Access** voice verification service.
+Production-ready voice authentication microservice with **Challenge-Response anti-replay protection**.
 
-## 🔗 Endpoints (No API Key Required)
+## 🚀 Quick Start
 
-| Endpoint | Method | Params |
-|----------|--------|--------|
-| `/api/v1/voice/enroll` | POST | `audio_files` (3), `user_id` |
-| `/api/v1/voice/authenticate` | POST | `audio` (1), `user_id` |
-| `/ws/voice-stream` | WS | Real-time verification |
-
-## ⚡ Quick Usage
-
-### Enroll a User
 ```bash
-curl -X POST "https://ai-voice-detection-2.onrender.com/api/v1/voice/enroll" \
-  -F "user_id=judge1" \
-  -F "audio_files=@sample1.wav" \
-  -F "audio_files=@sample2.wav" \
-  -F "audio_files=@sample3.wav"
+# Install dependencies
+pip install -r requirements.txt
+
+# Run locally
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-### Verify (REST)
-```bash
-curl -X POST "https://ai-voice-detection-2.onrender.com/api/v1/voice/authenticate" \
-  -F "user_id=judge1" \
-  -F "audio=@test.wav"
+## 📡 API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/voice/health` | GET | Health check |
+| `/api/v1/voice/enroll` | POST | Enroll user (3+ samples) |
+| `/api/v1/voice/authenticate` | POST | Simple voice auth |
+| `/api/v1/challenge/start` | POST | Start challenge session |
+| `/api/v1/challenge/verify` | POST | Verify challenge (RECOMMENDED) |
+| `/ws/voice-stream` | WebSocket | Real-time streaming |
+| `/integration` | GET | **Frontend integration guide (JSON)** |
+| `/docs` | GET | Interactive API docs |
+
+## 🛡️ Security: Challenge-Response Flow
+
+1. **Start Challenge**: Get random phrase (e.g., "five red birds")
+2. **User Speaks**: Display phrase, record user speaking it
+3. **Verify**: Checks BOTH voice identity AND spoken words
+4. **Anti-Replay**: Random phrases prevent recording attacks!
+
+## 📱 Frontend Integration
+
+Visit `/integration` for complete JSON documentation with code examples.
+
+```javascript
+// Quick Example
+const challenge = await fetch('/api/v1/challenge/start', {
+    method: 'POST',
+    body: new URLSearchParams({ user_id: 'user123' })
+}).then(r => r.json());
+
+// Show phrase to user: challenge.phrase
+// Record audio, then verify...
 ```
 
-### Live Streaming (WebSocket)
-1. Connect to `wss://ai-voice-detection-2.onrender.com/ws/voice-stream`
-2. Send JSON: `{"user_id": "judge1"}`
-3. Stream Binary Audio (Float32, 16kHz)
-4. Receive Results!
+## 🌐 Deploy to Render
+
+1. Push to GitHub
+2. Connect to Render.com
+3. Set Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+4. Deploy! 🚀
+
+## 📊 Tech Stack
+
+- **Speaker Verification**: ECAPA-TDNN (SpeechBrain)
+- **Speech-to-Text**: Vosk (offline)
+- **API Framework**: FastAPI
+- **Real-time**: WebSocket streaming
+
+---
+Made for **Hackathon 2024** 🏆
