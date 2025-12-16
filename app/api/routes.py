@@ -1,128 +1,72 @@
 """
-API Routes - Voice Authentication Endpoints
+API Routes - HACKATHON MODE (No Auth)
 """
-from fastapi import APIRouter, UploadFile, File, Form, Depends, Request
+from fastapi import APIRouter, UploadFile, File, Form, Request
 from typing import List
 import logging
 
 from app.schemas.request_response import AuthResponse, EnrollResponse, HealthResponse
-from app.core.inference import authenticate_voice, enroll_voice, validate_audio, get_audio_hash
-from app.core.security import verify_api_key, check_rate_limit
+from app.core.inference import authenticate_voice, enroll_voice, validate_audio
 from app.core.model_loader import is_model_loaded
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/v1/voice", tags=["Voice Authentication"])
-
+router = APIRouter(prefix="/api/v1/voice", tags=["Voice This Hackathon"])
 
 @router.post("/authenticate", response_model=AuthResponse)
 async def authenticate(
     request: Request,
-    audio: UploadFile = File(..., description="WAV audio file"),
-    user_id: str = Form(..., description="User ID to authenticate"),
-    session_id: str = Form(default="", description="Optional session ID"),
-    api_key: str = Depends(verify_api_key)
+    audio: UploadFile = File(..., description="WAV/MP3 Audio"),
+    user_id: str = Form(..., description="User ID"),
+    session_id: str = Form(default="", description="Optional Sess ID")
 ):
     """
-    Authenticate a user via voice.
-    
-    - Validates audio format and duration
-    - Compares against enrolled voiceprint
-    - Returns authentication decision with confidence score
+    Authenticate User (Open Access)
     """
-    await check_rate_limit(request)
+    logger.info(f"Auth: {user_id}")
     
-    # Read audio
+    # Read/Validate
     audio_bytes = await audio.read()
-    audio_hash = get_audio_hash(audio_bytes)
-    
-    logger.info(f"Auth request: user={user_id}, audio_hash={audio_hash}")
-    
-    # Validate audio
     is_valid, error, audio_array = validate_audio(audio_bytes)
+    
     if not is_valid:
         return AuthResponse(
-            authenticated=False,
-            spoof_detected=False,
-            confidence_score=0.0,
-            decision="ERROR",
-            message=error
+            authenticated=False, spoof_detected=False, confidence_score=0.0,
+            decision="ERROR", message=error
         )
     
-    # Authenticate
+    # Auth
     try:
         is_auth, score, decision = authenticate_voice(audio_array, user_id)
-        
         return AuthResponse(
-            authenticated=is_auth,
-            spoof_detected=False,
-            confidence_score=score,
+            authenticated=is_auth, spoof_detected=False, confidence_score=score,
             decision=decision,
-            message="Authenticated" if is_auth else f"Authentication failed: {decision}"
+            message="Authenticated" if is_auth else f"Failed: {decision}"
         )
-        
     except Exception as e:
-        logger.error(f"Auth error: {e}")
+        logger.error(f"Error: {e}")
         return AuthResponse(
-            authenticated=False,
-            spoof_detected=False,
-            confidence_score=0.0,
-            decision="ERROR",
-            message="Internal authentication error"
+            authenticated=False, spoof_detected=False, confidence_score=0.0,
+            decision="ERROR", message="Server Error"
         )
-
 
 @router.post("/enroll", response_model=EnrollResponse)
 async def enroll(
     request: Request,
-    audio_files: List[UploadFile] = File(..., description="3 WAV audio samples"),
-    user_id: str = Form(..., description="User ID to enroll"),
-    overwrite: bool = Form(default=False, description="Overwrite existing"),
-    api_key: str = Depends(verify_api_key)
+    audio_files: List[UploadFile] = File(..., description="3+ Voice Samples"),
+    user_id: str = Form(..., description="User ID"),
+    overwrite: bool = Form(default=True, description="Overwrite?")
 ):
     """
-    Enroll a new user with voice samples.
-    
-    Requires 3 audio samples for reliable voiceprint creation.
+    Enroll User (Open Access)
     """
-    await check_rate_limit(request)
-    
     if len(audio_files) < 3:
-        return EnrollResponse(
-            success=False,
-            user_id=user_id,
-            message="Need at least 3 audio samples"
-        )
+        return EnrollResponse(success=False, user_id=user_id, message="Need 3 samples!")
     
-    # Read all audio files
-    audio_samples = []
-    for f in audio_files:
-        audio_samples.append(await f.read())
+    samples = [await f.read() for f in audio_files]
+    success, msg = enroll_voice(samples, user_id, overwrite)
     
-    logger.info(f"Enroll request: user={user_id}, samples={len(audio_samples)}")
-    
-    # Enroll
-    try:
-        success, message = enroll_voice(audio_samples, user_id, overwrite)
-        
-        return EnrollResponse(
-            success=success,
-            user_id=user_id,
-            message=message
-        )
-        
-    except Exception as e:
-        logger.error(f"Enroll error: {e}")
-        return EnrollResponse(
-            success=False,
-            user_id=user_id,
-            message="Enrollment failed"
-        )
-
+    return EnrollResponse(success=success, user_id=user_id, message=msg)
 
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
-    """Health check endpoint."""
-    return HealthResponse(
-        status="healthy",
-        model_loaded=is_model_loaded()
-    )
+    return HealthResponse(status="ready_for_demo", model_loaded=is_model_loaded())

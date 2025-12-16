@@ -58,8 +58,11 @@ app.add_middleware(
 )
 
 # Include routes
-from app.api.routes import router
-app.include_router(router)
+from app.api.routes import router as auth_router
+from app.api.websocket import router as ws_router
+
+app.include_router(auth_router)
+app.include_router(ws_router)
 
 
 @app.get("/")

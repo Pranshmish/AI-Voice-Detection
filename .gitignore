@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Audio
+*.wav
+*.mp3
+*.flac
+*.npy
+
+# Logs
+logs/
+*.log
+
+# App Data
+voiceprints/*.npy
+voiceprints/*.json
+voiceprints/*.db
+!voiceprints/.keep
+models/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

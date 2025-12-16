@@ -82,14 +82,9 @@ def authenticate_voice(audio: np.ndarray, user_id: str) -> Tuple[bool, float, st
     if not verifier.voiceprint_manager.user_exists(user_id):
         return False, 0.0, "USER_NOT_ENROLLED"
     
-    # Save to temp file for processing
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-        temp_path = f.name
-        sf.write(temp_path, audio, SAMPLE_RATE)
-    
+    # Verify speaker directly from memory (no disk I/O)
     try:
-        # Verify speaker
-        verified, score, _ = verifier.verify_speaker(temp_path, user_id)
+        verified, score, _ = verifier.verify_speaker(audio, user_id)
         
         if verified:
             decision = "AUTHENTIC"
@@ -102,9 +97,8 @@ def authenticate_voice(audio: np.ndarray, user_id: str) -> Tuple[bool, float, st
         
         return verified, max(0.0, min(1.0, score)), decision
         
-    finally:
-        # Cleanup
-        Path(temp_path).unlink(missing_ok=True)
+    except Exception as e:
+        return False, 0.0, "ERROR"
 
 
 def enroll_voice(audio_samples: list, user_id: str, overwrite: bool = False) -> Tuple[bool, str]:

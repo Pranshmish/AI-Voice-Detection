@@ -242,5 +242,92 @@
         }
       ]
     }
+  },
+  "test_system_user": {
+    "user_id": "test_system_user",
+    "enrolled_at": "2025-12-16T11:59:13.782052",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\test_system_user.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpp64rj9sb.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmp_7hpude5.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpuo8u_vwf.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  },
+  "master_test_user": {
+    "user_id": "master_test_user",
+    "enrolled_at": "2025-12-16T12:38:45.717994",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\master_test_user.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmp9ajazf5h.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmp3_tyd_xs.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmps1lx_ykl.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
+  },
+  "master_test_user_v2": {
+    "user_id": "master_test_user_v2",
+    "enrolled_at": "2025-12-16T12:40:51.577443",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Voice Detection\\voiceprints\\embeddings\\master_test_user_v2.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpgdyu9vv7.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpxawjvu6f.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpa7g850c9.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
   }
 }
