@@ -1,51 +1,41 @@
 """
-Speech-to-Text Module using Vosk (Offline STT)
-----------------------------------------------
+Speech-to-Text Module using OpenAI Whisper
+-------------------------------------------
 Converts audio to text for challenge phrase verification.
+Uses 'tiny' or 'base' model for lightweight deployment.
 """
 import numpy as np
-import json
 import logging
-from pathlib import Path
+import os
 
 logger = logging.getLogger(__name__)
 
-# Vosk model (loaded lazily)
-_vosk_model = None
-_vosk_available = False
+# Whisper model (loaded lazily)
+_whisper_model = None
+_whisper_available = False
 
-def _load_vosk():
-    """Load Vosk model for offline STT."""
-    global _vosk_model, _vosk_available
+# Model selection: tiny (39MB), base (74MB), small (244MB)
+WHISPER_MODEL_NAME = os.getenv("WHISPER_MODEL", "base")
+
+
+def _load_whisper():
+    """Load Whisper model for STT."""
+    global _whisper_model, _whisper_available
     
     try:
-        from vosk import Model, KaldiRecognizer
+        import whisper
         
-        # Try to find model
-        model_paths = [
-            Path("models/vosk-model-small-en-us-0.15"),
-            Path("models/vosk-model-en-us-0.22"),
-            Path("vosk-model-small-en-us-0.15"),
-            Path.home() / ".cache/vosk/vosk-model-small-en-us-0.15"
-        ]
+        logger.info(f"Loading Whisper '{WHISPER_MODEL_NAME}' model...")
+        _whisper_model = whisper.load_model(WHISPER_MODEL_NAME)
+        _whisper_available = True
+        logger.info("Whisper STT loaded successfully")
         
-        model_path = None
-        for p in model_paths:
-            if p.exists():
-                model_path = p
-                break
-        
-        if model_path:
-            _vosk_model = Model(str(model_path))
-            _vosk_available = True
-            logger.info(f"Vosk loaded from: {model_path}")
-        else:
-            logger.warning("Vosk model not found. STT disabled.")
-            _vosk_available = False
-            
     except ImportError:
-        logger.warning("Vosk not installed. Using fallback STT.")
-        _vosk_available = False
+        logger.warning("Whisper not installed. Run: pip install openai-whisper")
+        _whisper_available = False
+    except Exception as e:
+        logger.error(f"Whisper load failed: {e}")
+        _whisper_available = False
 
 
 def transcribe_audio(audio: np.ndarray, sample_rate: int = 16000) -> str:
@@ -59,41 +49,46 @@ def transcribe_audio(audio: np.ndarray, sample_rate: int = 16000) -> str:
     Returns:
         Transcribed text
     """
-    global _vosk_model, _vosk_available
+    global _whisper_model, _whisper_available
     
-    # Try Vosk first
-    if _vosk_model is None:
-        _load_vosk()
+    if _whisper_model is None:
+        _load_whisper()
     
-    if _vosk_available and _vosk_model:
-        try:
-            from vosk import KaldiRecognizer
-            
-            # Convert to int16 for Vosk
-            audio_int16 = (audio * 32767).astype(np.int16)
-            
-            rec = KaldiRecognizer(_vosk_model, sample_rate)
-            rec.SetWords(True)
-            
-            # Process audio
-            rec.AcceptWaveform(audio_int16.tobytes())
-            result = json.loads(rec.FinalResult())
-            
-            text = result.get("text", "")
-            logger.info(f"STT Result: {text}")
-            return text
-            
-        except Exception as e:
-            logger.error(f"Vosk error: {e}")
+    if not _whisper_available or _whisper_model is None:
+        return ""
     
-    # Fallback: No STT available
-    logger.warning("STT not available - returning empty")
-    return ""
+    try:
+        import whisper
+        
+        # Ensure float32
+        audio_float = audio.astype(np.float32)
+        
+        # Pad/trim to 30 seconds
+        audio_padded = whisper.pad_or_trim(audio_float)
+        
+        # Create mel spectrogram
+        mel = whisper.log_mel_spectrogram(audio_padded).to(_whisper_model.device)
+        
+        # Decode with optimal settings
+        options = whisper.DecodingOptions(
+            language="en",
+            without_timestamps=True,
+            fp16=False  # CPU compatibility
+        )
+        result = whisper.decode(_whisper_model, mel, options)
+        
+        text = result.text.strip()
+        logger.info(f"STT Result: {text}")
+        return text
+        
+    except Exception as e:
+        logger.error(f"STT error: {e}")
+        return ""
 
 
 def is_stt_available() -> bool:
     """Check if STT is available."""
-    global _vosk_model, _vosk_available
-    if _vosk_model is None:
-        _load_vosk()
-    return _vosk_available
+    global _whisper_model, _whisper_available
+    if _whisper_model is None:
+        _load_whisper()
+    return _whisper_available

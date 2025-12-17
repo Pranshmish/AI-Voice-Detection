@@ -1,0 +1,15 @@
+# Render.com Configuration
+services:
+  - type: web
+    name: voice-auth-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter  # Use 'starter' for free tier
+    envVars:
+      - key: WHISPER_MODEL
+        value: tiny  # Use 'tiny' for lightweight deployment
+      - key: SPEAKER_THRESHOLD
+        value: "0.65"
+      - key: PORT
+        value: "8000"
+    healthCheckPath: /api/v1/voice/health

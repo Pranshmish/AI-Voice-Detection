@@ -1,5 +1,7 @@
 """
 Inference Engine - Voice authentication logic
+----------------------------------------------
+Uses ECAPA-TDNN with calibrated thresholds.
 """
 import numpy as np
 import soundfile as sf
@@ -8,23 +10,33 @@ import tempfile
 from pathlib import Path
 from typing import Tuple, Optional
 import hashlib
+import logging
 
 from app.core.model_loader import get_verifier
-from app.config.settings import AUDIO_BOOST, SAMPLE_RATE, MAX_AUDIO_DURATION_SEC
+from app.config.settings import (
+    SAMPLE_RATE, MAX_AUDIO_DURATION_SEC,
+    THRESHOLD_HIGH, THRESHOLD_BORDERLINE, THRESHOLD_IMPOSTER
+)
+
+logger = logging.getLogger(__name__)
 
 
-def boost_audio(audio: np.ndarray) -> np.ndarray:
-    """Boost and normalize audio signal."""
+def normalize_audio(audio: np.ndarray) -> np.ndarray:
+    """Normalize audio with auto-gain."""
     # Remove DC offset
     audio = audio - np.mean(audio)
     
-    # Boost
-    audio = audio * AUDIO_BOOST
+    # Auto-gain to target RMS
+    current_rms = np.sqrt(np.mean(audio**2))
+    target_rms = 0.20
     
-    # Clip to prevent distortion
+    if current_rms > 0.001:
+        auto_gain = target_rms / current_rms
+        auto_gain = min(auto_gain, 30.0)  # Limit gain
+        audio = audio * auto_gain
+    
+    # Clip and normalize
     audio = np.clip(audio, -1.0, 1.0)
-    
-    # Normalize
     max_val = np.max(np.abs(audio))
     if max_val > 0.01:
         audio = audio / max_val * 0.95
@@ -60,8 +72,8 @@ def validate_audio(audio_bytes: bytes) -> Tuple[bool, str, Optional[np.ndarray]]
             import librosa
             audio = librosa.resample(audio, orig_sr=sr, target_sr=SAMPLE_RATE)
         
-        # Boost audio
-        audio = boost_audio(audio.astype(np.float32))
+        # Normalize audio
+        audio = normalize_audio(audio.astype(np.float32))
         
         return True, "", audio
         
@@ -71,7 +83,7 @@ def validate_audio(audio_bytes: bytes) -> Tuple[bool, str, Optional[np.ndarray]]
 
 def authenticate_voice(audio: np.ndarray, user_id: str) -> Tuple[bool, float, str]:
     """
-    Authenticate voice against enrolled user.
+    Authenticate voice with ECAPA-TDNN decision bands.
     
     Returns:
         (is_authenticated, confidence_score, decision)
@@ -82,22 +94,28 @@ def authenticate_voice(audio: np.ndarray, user_id: str) -> Tuple[bool, float, st
     if not verifier.voiceprint_manager.user_exists(user_id):
         return False, 0.0, "USER_NOT_ENROLLED"
     
-    # Verify speaker directly from memory (no disk I/O)
     try:
         verified, score, _ = verifier.verify_speaker(audio, user_id)
         
-        if verified:
-            decision = "AUTHENTIC"
-        elif score < 0.15:
-            decision = "IMPOSTER"
-        elif score < 0.30:
-            decision = "IMPOSTER"
+        # Decision bands per ECAPA-TDNN calibration
+        if score >= THRESHOLD_HIGH:
+            decision = "AUTHENTIC_HIGH_CONFIDENCE"
+            authenticated = True
+        elif score >= THRESHOLD_BORDERLINE:
+            decision = "AUTHENTIC_MEDIUM_CONFIDENCE"
+            authenticated = True
+        elif score >= THRESHOLD_IMPOSTER:
+            decision = "BORDERLINE_REVIEW_REQUIRED"
+            authenticated = False
         else:
-            decision = "REVIEW_REQUIRED"
+            decision = "IMPOSTER_DETECTED"
+            authenticated = False
         
-        return verified, max(0.0, min(1.0, score)), decision
+        logger.info(f"Auth {user_id}: score={score:.3f}, decision={decision}")
+        return authenticated, max(0.0, min(1.0, score)), decision
         
     except Exception as e:
+        logger.error(f"Verification error: {e}")
         return False, 0.0, "ERROR"
 
 
@@ -106,7 +124,7 @@ def enroll_voice(audio_samples: list, user_id: str, overwrite: bool = False) -> 
     Enroll a new user.
     
     Args:
-        audio_samples: List of audio byte arrays
+        audio_samples: List of audio byte arrays (min 3)
         user_id: User identifier
         overwrite: Whether to overwrite existing enrollment
     
@@ -118,6 +136,9 @@ def enroll_voice(audio_samples: list, user_id: str, overwrite: bool = False) -> 
     # Check if exists
     if verifier.voiceprint_manager.user_exists(user_id) and not overwrite:
         return False, f"User '{user_id}' already enrolled"
+    
+    if len(audio_samples) < 3:
+        return False, "Need at least 3 audio samples"
     
     temp_files = []
     try:
@@ -135,7 +156,7 @@ def enroll_voice(audio_samples: list, user_id: str, overwrite: bool = False) -> 
         success, details = verifier.enroll_user(user_id, temp_files, overwrite=True)
         
         if success:
-            return True, f"User '{user_id}' enrolled successfully"
+            return True, f"User '{user_id}' enrolled successfully with {len(temp_files)} samples"
         else:
             return False, details.get("reason", "Enrollment failed")
             
@@ -146,5 +167,5 @@ def enroll_voice(audio_samples: list, user_id: str, overwrite: bool = False) -> 
 
 
 def get_audio_hash(audio_bytes: bytes) -> str:
-    """Get SHA256 hash of audio for logging (no raw audio stored)."""
+    """Get SHA256 hash of audio for logging."""
     return hashlib.sha256(audio_bytes).hexdigest()[:16]

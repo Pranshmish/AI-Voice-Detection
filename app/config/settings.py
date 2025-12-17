@@ -1,5 +1,7 @@
 """
-API Settings - HACKATHON
+Voice Auth API Settings
+=======================
+Production-ready configuration for Render deployment.
 """
 import os
 from pathlib import Path
@@ -8,15 +10,31 @@ BASE_DIR = Path(__file__).parent.parent.parent
 MODELS_DIR = BASE_DIR / "models"
 VOICEPRINTS_DIR = BASE_DIR / "voiceprints"
 
+# Ensure directories exist
+MODELS_DIR.mkdir(exist_ok=True)
+VOICEPRINTS_DIR.mkdir(exist_ok=True)
+
 # Audio Config
 SAMPLE_RATE = 16000
-AUDIO_BOOST = 5.0
-MAX_AUDIO_DURATION_SEC = 10 
+MAX_AUDIO_DURATION_SEC = 10
 
-# Model Config
-SPEAKER_THRESHOLD = float(os.getenv("SPEAKER_THRESHOLD", "0.40"))
+# ECAPA-TDNN Thresholds (calibrated)
+THRESHOLD_HIGH = 0.75  # High confidence
+THRESHOLD_BORDERLINE = 0.65  # Medium confidence
+THRESHOLD_IMPOSTER = 0.45  # Likely imposter
+SPEAKER_THRESHOLD = float(os.getenv("SPEAKER_THRESHOLD", "0.65"))
 
-# Security (Disabled)
-API_KEY = "open"
-RATE_LIMIT_PER_MINUTE = 999999
-REQUIRE_HTTPS = False
+# Phrase matching
+PHRASE_MATCH_THRESHOLD = 0.80
+
+# STT Model (use 'tiny' for lightweight, 'base' for better accuracy)
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+
+# API Config
+API_HOST = os.getenv("API_HOST", "0.0.0.0")
+API_PORT = int(os.getenv("PORT", "8000"))  # Render uses PORT env var
+
+# Security
+API_KEY = os.getenv("API_KEY", "")  # Empty = no auth required
+RATE_LIMIT_PER_MINUTE = int(os.getenv("RATE_LIMIT", "100"))
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
