@@ -38,13 +38,14 @@ def _load_whisper():
         _whisper_available = False
 
 
-def transcribe_audio(audio: np.ndarray, sample_rate: int = 16000) -> str:
+def transcribe_audio(audio: np.ndarray, sample_rate: int = 16000, prompt_hint: str = "") -> str:
     """
-    Convert audio to text.
+    Convert audio to text with improved accuracy.
     
     Args:
         audio: Audio samples (float32, mono)
         sample_rate: Sample rate (default 16000)
+        prompt_hint: Optional hint about expected content (improves accuracy)
         
     Returns:
         Transcribed text
@@ -63,22 +64,39 @@ def transcribe_audio(audio: np.ndarray, sample_rate: int = 16000) -> str:
         # Ensure float32
         audio_float = audio.astype(np.float32)
         
+        # Normalize audio for better recognition
+        max_val = np.max(np.abs(audio_float))
+        if max_val > 0.01:
+            audio_float = audio_float / max_val * 0.9
+        
         # Pad/trim to 30 seconds
         audio_padded = whisper.pad_or_trim(audio_float)
         
         # Create mel spectrogram
         mel = whisper.log_mel_spectrogram(audio_padded).to(_whisper_model.device)
         
-        # Decode with optimal settings
+        # Enhanced decoding options for better accuracy
         options = whisper.DecodingOptions(
             language="en",
             without_timestamps=True,
-            fp16=False  # CPU compatibility
+            fp16=False,  # CPU compatibility
+            # Prompt hint helps with expected words
+            prompt=prompt_hint if prompt_hint else "voice authentication phrase: ",
+            # Better beam search for accuracy
+            beam_size=5,
+            best_of=3,
+            # Temperature settings for more deterministic output
+            temperature=0.0,
         )
         result = whisper.decode(_whisper_model, mel, options)
         
         text = result.text.strip()
-        logger.info(f"STT Result: {text}")
+        
+        # Clean up common STT artifacts
+        text = text.replace(",", "").replace(".", "").replace("!", "").replace("?", "")
+        text = " ".join(text.split())  # Normalize whitespace
+        
+        logger.info(f"STT Result: '{text}'")
         return text
         
     except Exception as e:

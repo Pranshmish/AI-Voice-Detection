@@ -94,27 +94,85 @@ def get_session(session_id: str) -> Optional[dict]:
     return session
 
 
-def verify_phrase(spoken_text: str, expected_phrase: str, threshold: float = 0.7) -> Tuple[bool, float]:
+def verify_phrase(spoken_text: str, expected_phrase: str, threshold: float = 0.50) -> Tuple[bool, float]:
     """
     Check if spoken text matches expected phrase.
-    Uses word-level matching with tolerance for STT errors.
+    Uses enhanced fuzzy matching with tolerance for STT errors.
+    
+    Args:
+        spoken_text: What STT transcribed
+        expected_phrase: What user was supposed to say
+        threshold: Match threshold (default 0.50 for leniency)
+    
+    Returns:
+        (is_match, match_score)
     """
-    spoken_words = spoken_text.lower().strip().split()
-    expected_words = expected_phrase.lower().strip().split()
+    # Normalize both texts
+    spoken_clean = spoken_text.lower().strip()
+    expected_clean = expected_phrase.lower().strip()
+    
+    # Remove punctuation
+    for char in ".,!?':;\"":
+        spoken_clean = spoken_clean.replace(char, "")
+        expected_clean = expected_clean.replace(char, "")
+    
+    spoken_words = spoken_clean.split()
+    expected_words = expected_clean.split()
     
     if not spoken_words or not expected_words:
         return False, 0.0
     
-    # Count matching words
+    # Helper: Check if two words are similar (fuzzy match)
+    def words_similar(w1: str, w2: str) -> bool:
+        if w1 == w2:
+            return True
+        # One contains the other
+        if w1 in w2 or w2 in w1:
+            return True
+        # Edit distance check (allow 1-2 character errors)
+        if len(w1) > 2 and len(w2) > 2:
+            # Simple Levenshtein approximation
+            if abs(len(w1) - len(w2)) <= 2:
+                # Check character overlap
+                common = sum(1 for c in w1 if c in w2)
+                similarity = common / max(len(w1), len(w2))
+                if similarity >= 0.6:
+                    return True
+        # Sound-alike substitutions (common STT errors)
+        sound_alikes = {
+            "to": ["two", "too"], "for": ["four"], "one": ["won"],
+            "their": ["there", "they're"], "its": ["it's"],
+            "red": ["read"], "blue": ["blew"], "new": ["knew"],
+        }
+        for base, alts in sound_alikes.items():
+            if (w1 == base and w2 in alts) or (w2 == base and w1 in alts):
+                return True
+        return False
+    
+    # Count matching words (order-independent for leniency)
     matches = 0
+    matched_indices = set()
+    
     for exp_word in expected_words:
-        for spk_word in spoken_words:
-            # Allow partial matches (STT errors)
-            if exp_word == spk_word or exp_word in spk_word or spk_word in exp_word:
+        for i, spk_word in enumerate(spoken_words):
+            if i not in matched_indices and words_similar(exp_word, spk_word):
                 matches += 1
+                matched_indices.add(i)
                 break
     
+    # Calculate match ratio based on expected words
     match_ratio = matches / len(expected_words)
+    
+    # Bonus: If most words matched, be lenient
+    if matches >= len(expected_words) - 1 and len(expected_words) >= 3:
+        match_ratio = max(match_ratio, 0.75)  # Boost if only 1 word off
+    
+    # Log for debugging
+    import logging
+    logging.getLogger(__name__).info(
+        f"Phrase match: '{spoken_text}' vs '{expected_phrase}' = {match_ratio:.2f} ({matches}/{len(expected_words)} words)"
+    )
+    
     return match_ratio >= threshold, match_ratio
 
 

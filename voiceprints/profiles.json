@@ -341,5 +341,34 @@
         }
       ]
     }
+  },
+  "user_1765993618367": {
+    "user_id": "user_1765993618367",
+    "enrolled_at": "2025-12-17T23:52:34.422763",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Synap-Webapp\\Voice Detection\\voiceprints\\embeddings\\user_1765993618367.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        {
+          "sample": 1,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmp3yxzqk97.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 2,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmp_kg0oklz.wav",
+          "status": "success",
+          "embedding_dim": 192
+        },
+        {
+          "sample": 3,
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpwjmfmppx.wav",
+          "status": "success",
+          "embedding_dim": 192
+        }
+      ]
+    }
   }
 }
