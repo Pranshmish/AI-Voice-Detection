@@ -341,6 +341,7 @@ class SpeakerVerifier:
                     "embedding_dim": len(embedding)
                 })
             except Exception as e:
+                logger.error(f"Failed to extract embedding for sample {i+1}: {e}")
                 sample_details.append({
                     "sample": i + 1,
                     "path": str(audio_path),

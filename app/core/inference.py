@@ -141,12 +141,22 @@ def enroll_voice(audio_samples: list, user_id: str, overwrite: bool = False) -> 
         return False, "Need at least 3 audio samples"
     
     temp_files = []
+    validation_info = []
+    
     try:
         # Process each sample
         for i, audio_bytes in enumerate(audio_samples):
             is_valid, error, audio = validate_audio(audio_bytes)
+            size_kb = len(audio_bytes) / 1024
+            
             if not is_valid:
+                logger.error(f"Sample {i+1} validation failed: {error}, size: {size_kb:.1f}KB")
                 return False, f"Sample {i+1}: {error}"
+            
+            # Log audio info
+            duration = len(audio) / SAMPLE_RATE
+            logger.info(f"Sample {i+1}: {size_kb:.1f}KB, {duration:.2f}s, validated OK")
+            validation_info.append(f"s{i+1}:{duration:.1f}s")
             
             temp_path = tempfile.mktemp(suffix=".wav")
             sf.write(temp_path, audio, SAMPLE_RATE)
@@ -158,7 +168,18 @@ def enroll_voice(audio_samples: list, user_id: str, overwrite: bool = False) -> 
         if success:
             return True, f"User '{user_id}' enrolled successfully with {len(temp_files)} samples"
         else:
-            return False, details.get("reason", "Enrollment failed")
+            # Include sample_details in error for debugging
+            reason = details.get("reason", "Enrollment failed")
+            sample_details = details.get("sample_details", [])
+            failed_samples = [s for s in sample_details if s.get("status") == "failed"]
+            if failed_samples:
+                reasons = [f"s{s['sample']}:{s.get('reason','unknown')}" for s in failed_samples]
+                reason = f"{reason} | Failed: {', '.join(reasons)}"
+            return False, reason
+            
+    except Exception as e:
+        logger.error(f"Enrollment exception: {e}")
+        return False, f"Enrollment error: {str(e)}"
             
     finally:
         # Cleanup temp files

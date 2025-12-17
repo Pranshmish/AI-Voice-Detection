@@ -1,5 +1,6 @@
 """
-WebSocket Streaming - HACKATHON MODE (No API Key)
+WebSocket Streaming - FAST MODE for Continuous Auth
+Optimized for seamless voice command verification
 """
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import numpy as np
@@ -11,14 +12,16 @@ from app.core.inference import authenticate_voice
 
 router = APIRouter(tags=["Voice Streaming"])
 
-# Constants
+# Optimized Constants for Fast Continuous Auth
 SAMPLE_RATE = 16000
-CHUNK_MS = 100
-VAD_THRESHOLD = 0.01 
-SILENCE_DURATION_MS = 350
-MAX_SPEECH_DURATION_S = 4.0
+CHUNK_MS = 128  # Smaller chunks for lower latency (2048 samples at 16kHz)
+VAD_THRESHOLD = 0.008  # Lower threshold for more sensitivity
+SILENCE_DURATION_MS = 250  # Faster cutoff
+MAX_SPEECH_DURATION_S = 2.5  # Shorter max for quick verification
+MIN_SPEECH_DURATION_S = 0.4  # Minimum to avoid noise triggers
 
 class AudioBuffer:
+    """Fast VAD-based audio buffer for real-time voice verification"""
     def __init__(self):
         self.buffer, self.speech_chunks = [], []
         self.is_speaking = False
@@ -33,6 +36,7 @@ class AudioBuffer:
                 self.speech_chunks = []
             self.speech_chunks.append(chunk)
             self.silence_chunks = 0
+            # Quick cutoff at max duration
             if len(self.speech_chunks) * CHUNK_MS / 1000 > MAX_SPEECH_DURATION_S:
                 segment = np.concatenate(self.speech_chunks)
                 self.reset()
@@ -43,7 +47,9 @@ class AudioBuffer:
             if self.silence_chunks >= self.silence_limit:
                 full_segment = np.concatenate(self.speech_chunks[:-self.silence_limit])
                 self.reset()
-                if len(full_segment) < 0.5 * SAMPLE_RATE: return None
+                # Require minimum duration
+                if len(full_segment) / SAMPLE_RATE < MIN_SPEECH_DURATION_S:
+                    return None
                 return full_segment
         return None
 
