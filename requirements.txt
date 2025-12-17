@@ -13,10 +13,11 @@ numpy>=1.24.0
 soundfile>=0.12.0
 librosa>=0.10.0
 
-# ML - Speaker Verification
+# ML - Speaker Verification (IMPORTANT: versions must be compatible)
 torch>=2.0.0
 torchaudio>=2.0.0
-speechbrain>=1.0.0  # 1.0.0+ has huggingface_hub compatibility fix
+huggingface_hub>=0.20.0,<0.24.0  # MUST be <0.24 for use_auth_token support
+speechbrain>=1.0.0
 
 # Speech-to-Text (Whisper - use 'tiny' or 'base' for deployment)
 openai-whisper>=20231117
