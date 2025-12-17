@@ -16,7 +16,7 @@ librosa>=0.10.0
 # ML - Speaker Verification
 torch>=2.0.0
 torchaudio>=2.0.0
-speechbrain>=0.5.15
+speechbrain>=1.0.0  # 1.0.0+ has huggingface_hub compatibility fix
 
 # Speech-to-Text (Whisper - use 'tiny' or 'base' for deployment)
 openai-whisper>=20231117
