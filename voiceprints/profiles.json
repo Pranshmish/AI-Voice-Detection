@@ -303,7 +303,7 @@
   },
   "owner": {
     "user_id": "owner",
-    "enrolled_at": "2025-12-18T01:21:57.973918",
+    "enrolled_at": "2025-12-18T12:53:02.747056",
     "embedding_path": "C:\\Users\\ASUS\\Desktop\\Synap-Webapp\\Voice Detection\\voiceprints\\embeddings\\owner.npy",
     "embedding_dim": 192,
     "metadata": {
@@ -311,19 +311,19 @@
       "sample_details": [
         {
           "sample": 1,
-          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpwueg818w.wav",
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpw_3ojl5s.wav",
           "status": "success",
           "embedding_dim": 192
         },
         {
           "sample": 2,
-          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpd_3jfqkf.wav",
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmpsmq0nk_i.wav",
           "status": "success",
           "embedding_dim": 192
         },
         {
           "sample": 3,
-          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmppbksp90r.wav",
+          "path": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\tmp3myyuokg.wav",
           "status": "success",
           "embedding_dim": 192
         }
@@ -356,6 +356,62 @@
           "status": "success",
           "embedding_dim": 192
         }
+      ]
+    }
+  },
+  "voice_owner": {
+    "user_id": "voice_owner",
+    "enrolled_at": "2025-12-19T00:43:09.028737",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Synap-Webapp\\Voice Detection\\voiceprints\\embeddings\\voice_owner.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        "s1:OK",
+        "s2:OK",
+        "s3:OK"
+      ]
+    }
+  },
+  "voice_Samir": {
+    "user_id": "voice_Samir",
+    "enrolled_at": "2025-12-18T16:38:42.928219",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Synap-Webapp\\Voice Detection\\voiceprints\\embeddings\\voice_Samir.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        "s1:OK",
+        "s2:OK",
+        "s3:OK"
+      ]
+    }
+  },
+  "voice_anurag": {
+    "user_id": "voice_anurag",
+    "enrolled_at": "2025-12-19T09:18:16.177147",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Synap-Webapp\\Voice Detection\\voiceprints\\embeddings\\voice_anurag.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        "s1:OK",
+        "s2:OK",
+        "s3:OK"
+      ]
+    }
+  },
+  "voice_anuraag": {
+    "user_id": "voice_anuraag",
+    "enrolled_at": "2025-12-19T09:22:30.797187",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Synap-Webapp\\Voice Detection\\voiceprints\\embeddings\\voice_anuraag.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        "s1:OK",
+        "s2:OK",
+        "s3:OK"
       ]
     }
   }

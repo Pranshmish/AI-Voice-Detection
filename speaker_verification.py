@@ -284,12 +284,51 @@ class SpeakerVerifier:
         # DO NOT normalize to [0,1] - this destroys discrimination!
         return float(similarity)
     
+    def is_enrolled(self, user_id: str) -> bool:
+        """Check if a user is enrolled."""
+        return self.voiceprint_manager.user_exists(user_id)
+    
+    def verify(self, user_id: str, audio_array, sample_rate: int = 16000) -> dict:
+        """
+        Verify audio against a user's voiceprint.
+        
+        Args:
+            user_id: User to verify against
+            audio_array: Audio data as numpy array
+            sample_rate: Sample rate of audio
+            
+        Returns:
+            Dict with score and verification result
+        """
+        if not self.is_enrolled(user_id):
+            return {"score": 0.0, "verified": False, "error": "User not enrolled"}
+        
+        try:
+            # Extract embedding from test audio
+            test_embedding = self.extract_embedding(audio_array, sample_rate)
+            
+            # Load stored voiceprint
+            stored_voiceprint = self.voiceprint_manager.load_voiceprint(user_id)
+            if stored_voiceprint is None:
+                return {"score": 0.0, "verified": False, "error": "Failed to load voiceprint"}
+            
+            # Compute similarity
+            score = self.compute_similarity(test_embedding, stored_voiceprint)
+            verified = score >= self.threshold
+            
+            logger.info(f"Verify {user_id}: score={score:.3f}, verified={verified}")
+            return {"score": score, "verified": verified}
+            
+        except Exception as e:
+            logger.error(f"Verification error: {e}")
+            return {"score": 0.0, "verified": False, "error": str(e)}
+    
     def enroll_user(
         self,
         user_id: str,
-        audio_samples: List[Path],
+        audio_samples: list,
         overwrite: bool = False
-    ) -> Tuple[bool, Dict]:
+    ) -> dict:
         """
         Enroll a new user with multiple audio samples.
         
@@ -297,64 +336,64 @@ class SpeakerVerifier:
         
         Args:
             user_id: Unique user identifier
-            audio_samples: List of paths to enrollment audio files
+            audio_samples: List of:
+                - Path objects (file paths)
+                - Tuples of (audio_array, sample_rate)
             overwrite: Whether to overwrite existing enrollment
             
         Returns:
-            Tuple of (success, details)
+            Dict with success status and details
         """
         # Check if user exists
         if self.voiceprint_manager.user_exists(user_id) and not overwrite:
-            return False, {
-                "status": "failed",
-                "reason": f"User '{user_id}' already enrolled. Set overwrite=True to re-enroll."
+            return {
+                "success": False,
+                "message": f"User '{user_id}' already enrolled. Set overwrite=True to re-enroll."
             }
         
         # Validate sample count
         if len(audio_samples) < config.MIN_ENROLLMENT_SAMPLES:
-            return False, {
-                "status": "failed",
-                "reason": f"Need at least {config.MIN_ENROLLMENT_SAMPLES} samples, got {len(audio_samples)}"
+            return {
+                "success": False,
+                "message": f"Need at least {config.MIN_ENROLLMENT_SAMPLES} samples, got {len(audio_samples)}"
             }
         
         embeddings = []
         sample_details = []
         
-        for i, audio_path in enumerate(audio_samples):
-            audio_path = Path(audio_path)
-            if not audio_path.exists():
-                sample_details.append({
-                    "sample": i + 1,
-                    "path": str(audio_path),
-                    "status": "failed",
-                    "reason": "File not found"
-                })
-                continue
-            
+        for i, sample in enumerate(audio_samples):
             try:
-                embedding = self.extract_embedding(audio_path)
+                # Handle different input types
+                if isinstance(sample, tuple):
+                    # (audio_array, sample_rate) tuple
+                    audio_array, sample_rate = sample
+                    embedding = self.extract_embedding(audio_array, sample_rate)
+                    sample_details.append(f"s{i+1}:OK")
+                elif isinstance(sample, (str, Path)):
+                    # File path
+                    audio_path = Path(sample)
+                    if not audio_path.exists():
+                        sample_details.append(f"s{i+1}:FileNotFound")
+                        continue
+                    embedding = self.extract_embedding(audio_path)
+                    sample_details.append(f"s{i+1}:OK")
+                else:
+                    # Assume it's a numpy array
+                    embedding = self.extract_embedding(sample)
+                    sample_details.append(f"s{i+1}:OK")
+                
                 embeddings.append(embedding)
-                sample_details.append({
-                    "sample": i + 1,
-                    "path": str(audio_path),
-                    "status": "success",
-                    "embedding_dim": len(embedding)
-                })
+                logger.info(f"Sample {i+1} processed successfully, embedding dim: {len(embedding)}")
+                
             except Exception as e:
                 logger.error(f"Failed to extract embedding for sample {i+1}: {e}")
-                sample_details.append({
-                    "sample": i + 1,
-                    "path": str(audio_path),
-                    "status": "failed",
-                    "reason": str(e)
-                })
+                sample_details.append(f"s{i+1}:{str(e)[:30]}")
         
         # Check if we have enough successful embeddings
         if len(embeddings) < config.MIN_ENROLLMENT_SAMPLES:
-            return False, {
-                "status": "failed",
-                "reason": f"Only {len(embeddings)} valid samples, need {config.MIN_ENROLLMENT_SAMPLES}",
-                "sample_details": sample_details
+            return {
+                "success": False,
+                "message": f"Only {len(embeddings)} valid samples, need {config.MIN_ENROLLMENT_SAMPLES}. Details: {', '.join(sample_details)}"
             }
         
         # Average embeddings to create stable voiceprint
@@ -370,18 +409,14 @@ class SpeakerVerifier:
         
         if success:
             logger.info(f"Successfully enrolled user: {user_id}")
-            return True, {
-                "status": "success",
-                "user_id": user_id,
-                "num_samples_used": len(embeddings),
-                "embedding_dim": len(voiceprint),
-                "sample_details": sample_details
+            return {
+                "success": True,
+                "message": f"Enrolled with {len(embeddings)} samples"
             }
         else:
-            return False, {
-                "status": "failed",
-                "reason": "Failed to save voiceprint",
-                "sample_details": sample_details
+            return {
+                "success": False,
+                "message": "Failed to save voiceprint"
             }
     
     def verify_speaker(

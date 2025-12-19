@@ -22,31 +22,39 @@ async def authenticate(
     """
     Authenticate User (Open Access)
     """
-    logger.info(f"Auth: {user_id}")
+    logger.info(f"Auth request: user={user_id}, file={audio.filename}, size={audio.size}")
     
     # Read/Validate
     audio_bytes = await audio.read()
+    logger.info(f"Audio bytes received: {len(audio_bytes)}")
+    
     is_valid, error, audio_array = validate_audio(audio_bytes)
     
     if not is_valid:
+        logger.error(f"Audio validation failed: {error}")
         return AuthResponse(
             authenticated=False, spoof_detected=False, confidence_score=0.0,
             decision="ERROR", message=error
         )
     
+    logger.info(f"Audio valid: {len(audio_array)} samples")
+    
     # Auth
     try:
         is_auth, score, decision = authenticate_voice(audio_array, user_id)
+        logger.info(f"Auth result: {decision}, score={score:.3f}")
         return AuthResponse(
             authenticated=is_auth, spoof_detected=False, confidence_score=score,
             decision=decision,
             message="Authenticated" if is_auth else f"Failed: {decision}"
         )
     except Exception as e:
-        logger.error(f"Error: {e}")
+        import traceback
+        logger.error(f"Auth error: {str(e)}")
+        logger.error(traceback.format_exc())
         return AuthResponse(
             authenticated=False, spoof_detected=False, confidence_score=0.0,
-            decision="ERROR", message="Server Error"
+            decision="ERROR", message=f"Error: {str(e)}"
         )
 
 @router.post("/enroll", response_model=EnrollResponse)

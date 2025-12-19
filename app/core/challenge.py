@@ -7,8 +7,11 @@ Prevents replay attacks completely.
 """
 import random
 import uuid
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, Tuple, Optional
+
+logger = logging.getLogger(__name__)
 
 # Word lists for generating phrases
 ADJECTIVES = [
@@ -168,8 +171,7 @@ def verify_phrase(spoken_text: str, expected_phrase: str, threshold: float = 0.5
         match_ratio = max(match_ratio, 0.75)  # Boost if only 1 word off
     
     # Log for debugging
-    import logging
-    logging.getLogger(__name__).info(
+    logger.info(
         f"Phrase match: '{spoken_text}' vs '{expected_phrase}' = {match_ratio:.2f} ({matches}/{len(expected_words)} words)"
     )
     
