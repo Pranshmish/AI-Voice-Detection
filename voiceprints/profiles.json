@@ -414,5 +414,19 @@
         "s3:OK"
       ]
     }
+  },
+  "voice_pranshul": {
+    "user_id": "voice_pranshul",
+    "enrolled_at": "2025-12-19T13:50:08.177979",
+    "embedding_path": "C:\\Users\\ASUS\\Desktop\\Synap-Webapp\\Voice Detection\\voiceprints\\embeddings\\voice_pranshul.npy",
+    "embedding_dim": 192,
+    "metadata": {
+      "num_samples": 3,
+      "sample_details": [
+        "s1:OK",
+        "s2:OK",
+        "s3:OK"
+      ]
+    }
   }
 }

@@ -79,10 +79,10 @@ SPEECHBRAIN_MODEL = "speechbrain/spkrec-ecapa-voxceleb"
 EMBEDDING_DIM = 192             # ECAPA-TDNN embedding dimension
 
 # Speaker verification threshold (RAW cosine similarity)
-VERIFICATION_THRESHOLD = 0.35   # Raw cosine threshold for ECAPA-TDNN
+VERIFICATION_THRESHOLD = 0.30   # ADJUSTED: Blocks intruders but allows owner variability
 # Same speaker typically: 0.30 - 0.70
 # Different speakers: -0.10 - 0.25
-# Threshold 0.35 balances security vs usability
+# Threshold 0.30 is the precision calibration point
 
 # Enrollment requirements
 MIN_ENROLLMENT_SAMPLES = 3      # Minimum audio samples for enrollment

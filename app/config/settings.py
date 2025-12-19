@@ -23,10 +23,10 @@ MAX_AUDIO_DURATION_SEC = 10
 THRESHOLD_HIGH = 0.55  # High confidence
 THRESHOLD_BORDERLINE = 0.40  # Medium confidence  
 THRESHOLD_IMPOSTER = 0.25  # Likely imposter
-SPEAKER_THRESHOLD = float(os.getenv("SPEAKER_THRESHOLD", "0.40"))
+SPEAKER_THRESHOLD = float(os.getenv("SPEAKER_THRESHOLD", "0.30"))
 
 # Phrase matching (lowered for STT variations)
-PHRASE_MATCH_THRESHOLD = 0.60
+PHRASE_MATCH_THRESHOLD = 0.50
 
 # STT Model (use 'tiny' for lightweight, 'base' for better accuracy)
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")

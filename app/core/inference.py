@@ -91,15 +91,14 @@ def authenticate_voice(audio_array: np.ndarray, user_id: str) -> Tuple[bool, flo
         score = result.get("score", 0.0)
         logger.info(f"Voice verification score for {user_id}: {score:.4f}")
         
-        # Decision thresholds (lowered for streaming command mode)
-        # Short audio segments produce lower scores
-        # 0.15+ = Accept (lowered from 0.25)
-        # 0.08+ = Uncertain (lowered from 0.15)
-        # <0.08 = Reject
-        if score >= 0.15:
-            logger.info(f"ACCEPT: {user_id} with score {score:.4f}")
+        # Use configured threshold from the verifier
+        # This ensures we respect the global security setting
+        algo_threshold = verifier.threshold
+        
+        if score >= algo_threshold:
+            logger.info(f"ACCEPT: {user_id} with score {score:.4f} (>= {algo_threshold})")
             return True, score, "ACCEPT"
-        elif score >= 0.08:
+        elif score >= (algo_threshold - 0.12): # Gray area
             logger.info(f"UNCERTAIN: {user_id} with score {score:.4f}")
             return False, score, "UNCERTAIN"
         else:
